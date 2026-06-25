@@ -437,6 +437,35 @@ function nextZone(){
   go('p-zdone');
 }
 
-function nextZone2(){if(curZ===ZONES.length-1){go('p-finish');}else{curZ++;renderMap();startZone(curZ);}}
+async function nextZone2() {
+    if (curZ === ZONES.length - 1) {
+        // Construir payload
+        const payload = { codigo_modular: ieData.cod };
+        ZONES.forEach((z, zi) => {
+            z.questions.forEach((_, qi) => {
+                const key = zi + '-' + qi;
+                const col = 'z' + (zi+1) + '_p' + (qi+1);
+                payload[col] = answers[key] ?? null;
+            });
+        });
+
+        try {
+            const res = await fetch('https://TU-APP.up.railway.app/api/respuestas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) { go('p-finish'); }
+            else { alert('Error al guardar. Intenta de nuevo.'); }
+        } catch(e) {
+            alert('Error de conexión. Verifica tu internet.');
+        }
+    } else {
+        curZ++;
+        renderMap();
+        startZone(curZ);
+    }
+}
 function goMap(){renderMap();go('p-map');}
 </script>
