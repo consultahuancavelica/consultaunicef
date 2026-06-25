@@ -450,7 +450,7 @@ async function nextZone2() {
         });
 
         try {
-            const res = await fetch('https://TU-APP.up.railway.app/api/respuestas', {
+            const res = await fetch('https://consulta-participativa-production.up.railway.app/api/respuestas', { 
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
