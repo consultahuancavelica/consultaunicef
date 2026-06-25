@@ -331,16 +331,26 @@ let curZ=0,answers={},doneZones=[],ieData=null;
 
 function go(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');}
 
-function checkCod(){
-  const v=document.getElementById('cod').value.trim();
-  const prev=document.getElementById('ie-preview'),btn=document.getElementById('btn-iniciar');
-  prev.style.display='none';btn.disabled=true;btn.className='btn-disabled';
-  if(v.length>=7){
-    ieData={name:'IE '+v,ugel:'UGEL Huancavelica',distrito:'Huancavelica',provincia:'Huancavelica',cod:v};
-    document.getElementById('ie-name').textContent=ieData.name;
-    document.getElementById('ie-detail').textContent=ieData.ugel+' · '+ieData.distrito+', '+ieData.provincia;
-    prev.style.display='block';btn.disabled=false;btn.className='btn-enabled';
-  }
+// En la función checkCod() reemplaza el bloque local por:
+async function checkCod() {
+    const v = document.getElementById('cod').value.trim();
+    const prev = document.getElementById('ie-preview');
+    const btn = document.getElementById('btn-iniciar');
+    prev.style.display='none'; btn.disabled=true; btn.className='btn-disabled';
+    if (v.length >= 7) {
+        const res = await fetch('https://consulta-participativa-production.up.railway.app/api/validar-codigo', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({codigo_modular: v})
+        });
+        const data = await res.json();
+        if (data.success) {
+            ieData = {name: data.nombre, ugel: data.ugel, distrito: data.distrito, provincia: data.provincia, cod: v};
+            document.getElementById('ie-name').textContent = data.nombre;
+            document.getElementById('ie-detail').textContent = data.ugel + ' · ' + data.distrito + ', ' + data.provincia;
+            prev.style.display='block'; btn.disabled=false; btn.className='btn-enabled';
+        }
+    }
 }
 
 function iniciar(){answers={};curZ=0;doneZones=[];document.getElementById('map-ie').textContent=ieData?ieData.name:'';renderMap();go('p-map');}
