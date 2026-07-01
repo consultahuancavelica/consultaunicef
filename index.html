@@ -338,17 +338,24 @@ async function checkCod() {
     const btn = document.getElementById('btn-iniciar');
     prev.style.display='none'; btn.disabled=true; btn.className='btn-disabled';
     if (v.length >= 7) {
-        const res = await fetch('https://consulta-participativa-production.up.railway.app/api/validar-codigo', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({codigo_modular: v})
-        });
-        const data = await res.json();
-        if (data.success) {
-            ieData = {name: data.nombre, ugel: data.ugel, distrito: data.distrito, provincia: data.provincia, cod: v};
-            document.getElementById('ie-name').textContent = data.nombre;
-            document.getElementById('ie-detail').textContent = data.ugel + ' · ' + data.distrito + ', ' + data.provincia;
-            prev.style.display='block'; btn.disabled=false; btn.className='btn-enabled';
+        try {
+            const res = await fetch('https://consulta-participativa-production.up.railway.app/api/validar-codigo', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({codigo_modular: v})
+            });
+            const data = await res.json();
+            if (data.success) {
+                ieData = {name: data.nombre, ugel: data.ugel, distrito: data.distrito, provincia: data.provincia, cod: v};
+                document.getElementById('ie-name').textContent = data.nombre;
+                document.getElementById('ie-detail').textContent = data.ugel + ' · ' + data.distrito + ', ' + data.provincia;
+                prev.style.display='block'; btn.disabled=false; btn.className='btn-enabled';
+            } else {
+                document.getElementById('ie-preview').style.display='none';
+                alert('Código modular no encontrado. Verifica con tu docente.');
+            }
+        } catch(e) {
+            alert('Error de conexión. Verifica tu internet.');
         }
     }
 }
@@ -449,20 +456,16 @@ function nextZone(){
 
 async function nextZone2() {
     if (curZ === ZONES.length - 1) {
-        // Construir payload
         const payload = { codigo_modular: ieData.cod };
         ZONES.forEach((z, zi) => {
             z.questions.forEach((_, qi) => {
-                const key = zi + '-' + qi;
-                const col = 'z' + (zi+1) + '_p' + (qi+1);
-                payload[col] = answers[key] ?? null;
+                payload['z' + (zi+1) + '_p' + (qi+1)] = answers[zi + '-' + qi] ?? null;
             });
         });
-
         try {
-            const res = await fetch('https://consulta-participativa-production.up.railway.app/api/respuestas', { 
+            const res = await fetch('https://consulta-participativa-production.up.railway.app/api/respuestas', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload)
             });
             const data = await res.json();
