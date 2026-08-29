@@ -508,12 +508,12 @@ async function nextZone2(){
         method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify(payload)
       });
-      const data=await res.json();
       if(res.status===403){
-        alert('La encuesta ha sido cerrada. Gracias por tu participación.');
-        go('p-finish');
-        return;
-      }
+  alert('La encuesta ha sido cerrada. Gracias por tu participación.');
+  go('p-finish');
+  return;
+}
+const data=await res.json();
       if(data.success){go('p-finish');}
       else{alert('Error al guardar. Intenta de nuevo.');}
     } catch(e){alert('Error de conexión. Verifica tu internet.');}
