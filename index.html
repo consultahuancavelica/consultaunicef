@@ -270,7 +270,7 @@
       <div class="finish-msg">Tu voz es importante para mejorar la educación en Huancavelica. Tus respuestas han sido registradas de forma anónima.</div>
       <div class="stat-row">
         <div class="stat-box"><div class="stat-num">5</div><div class="stat-lbl">Zonas completadas</div></div>
-        <div class="stat-box"><div class="stat-num">39</div><div class="stat-lbl">Preguntas respondidas</div></div>
+        <div class="stat-box"><div class="stat-num">38</div><div class="stat-lbl">Preguntas respondidas</div></div>
       </div>
       <div class="finish-close">Puedes cerrar esta página.</div>
     </div>
@@ -329,6 +329,7 @@ const ZONES=[
     'En mi casa me castigan de una manera que me hace sentir mal.',
   ]},
 ];
+
 const EMOJIS=['😣','😕','🙂','😄'];
 const COL=['c0','c1','c2','c3'];
 const RANS=['a0','a1','a2','a3'];
@@ -341,6 +342,7 @@ const ZDONE=[
   {icon:'🏫',msg:'¡Zona del colegio seguro completada! Todos merecemos crecer sin miedo.'},
   {icon:'🏠',msg:'¡Última zona completada! Gracias por compartir tu experiencia en casa.'},
 ];
+
 let curZ=0,answers={},doneZones=[],ieData=null;
 let datosPrevios={sexo:null,quechua:null};
 
@@ -507,6 +509,11 @@ async function nextZone2(){
         body:JSON.stringify(payload)
       });
       const data=await res.json();
+      if(res.status===403){
+        alert('La encuesta ha sido cerrada. Gracias por tu participación.');
+        go('p-finish');
+        return;
+      }
       if(data.success){go('p-finish');}
       else{alert('Error al guardar. Intenta de nuevo.');}
     } catch(e){alert('Error de conexión. Verifica tu internet.');}
